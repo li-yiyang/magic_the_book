@@ -1,0 +1,130 @@
+\chapter{Environment Setting Up}
+
+
+虽然我只能说设置环境实际上是非常枯燥和无聊的一个东西. 感觉就像是在和魔鬼做生意一样: 魔鬼们说, 孩子, 搞电脑是多麻烦啊, 自己搞电脑是多么丑啊, 让我们来帮你美化吧, 让我们来帮你设置吧, 让我们来帮你... 于是我们剩下的就只有接受既得的电脑的操作方式, 被迫去适应电脑的逻辑和思路, 去享受便利和美观. \footnote{关于这个我记得锤子的设计师罗子雄吐槽过这个: iOS现在的设计抛弃了原来的拟物风的直观特性, 从小孩子拿到就会使用到让用户去不得不增加学习成本, 去适应新的操作逻辑. }
+
+所以为了重新得到一切的控制权, 我们就要不得不重新拾起麻烦的事情, 不过还好, 我们不必真的像是最初的程序员一样, 需要从零开始, 我们要做的, 只是从体制化的舒适监狱里面稍微打开一个小洞, 就可以利用前人已经挖得差不多的地洞来到自由的世界. 哪怕可能在路上会遇到一些不识抬举的路障, 但是毕竟是为了自由嘛...
+
+我们的镰刀和锤子就是简单的命令行工具了. 
+
+\subsection*{Terminal}
+终端, 是个只用命令就能够操作电脑的一个电脑的交互式界面. 
+\footnote{注: 我已经默认将Windows的CMD和Powershell自动排除了讨论范围, 因为我觉得这两个实在是不太上的了台面, 假如你是Windows用户的话, 尝试看看WSL吧. }
+可以在终端里面输入命令, 然后终端就会执行相应的命令, 然后得到结果, 
+或者是达到目的. 
+
+对终端命令的理解其实非常容易, 比如下面这个终端的内容的截取: 
+
+\begin{lstlisting}
+  > mkdir gift
+  > cd gift
+  > touch gift.txt
+  > echo "I'm Lucky. " >> gift.txt
+  > cat gift.txt
+I'm Lucky. 
+  > ls
+gift.txt
+  > ls -l
+total 8
+-rw-r--r--  1 liyiyang  staff  12 Mar 11 20:32 gift.txt
+\end{lstlisting}
+
+这里暂时不对上面的命令做解释, 但是我们可以简单的观察命令的格式, 
+可以发现, 命令的大概模式是这样的: \underline{命令名称+命令参数}. 
+
+嗯, 有点抽象. 那么不妨这样想: 你应该见过村妇骂街吧? 
+村东头的王大婶撂下一盆衣服, 扯开嗓子大吼: "村西李大姐! 
+来捡你家毛孩子!" 这个时候我们可以这样想, 
+王大婶往命令行里面输入了一个命令(或者说程序名称): 
+\underline{村西李大姐}, 然后又输入了一个参数: \underline{毛孩子}, 
+这样, 系统就会找到"村西的李大姐"这个程序, 然后将"毛孩子"
+这个参数丢给"李大姐"来处理. 至于毛孩子的下场如何, 就暂时和我们没关系了. 
+
+其实我们刚才干的就是一个人为的对计算机终端命令的一个解析的过程. 
+这个过程和真实的计算机的parser大概是差不多的. 
+虽然不同的命令对于参数的输入形式是不一样的, 就好像李大姐见不得别人喊她儿子为
+"毛孩子", 除非你叫她儿子为"寿限无寿限无扔屎机前天的小新的内裤新八的人生巴鲁蒙格·费扎利昂爱扎克·休纳德三分之一的纯情之感情的剩下的三分之二是在意倒刺的感情背叛好像知道我的名字我知道他不知道的不在家干鱿鱼鳉鱼干青鱼子粪坑鳉鱼", 
+并且还要加上修饰符\underline{-f}, 否则她绝对不会有反应. 
+于是我们只需要了解有哪些命令, 并且它们分别对应的参数是什么形式就好了. 
+
+听起来挺麻烦的. 因为 Linux 的命令有几百条, 但是实际上, 常用的估计就不到5条, 
+并且我们可以让程序告诉我们它是怎么使用的. 
+
+\section*{网络问题}
+呃, 说实话, 有时候我觉得网络上提供的教程不太适用的一个原因是: 
+我的网络链接有亿点问题, 总是因为访问不了某些网站而被迫曲线救国. 
+
+不过这个的话就只能各显神通了, 我不能多说了. 
+
+\section{macOS}
+我的电脑是m1的macOS, 虽然不得不说, 苹果的m1真溜, 
+但是苹果也是个老典狱长了. 不过好在出于历史原因, 
+苹果还留着一点点类Unix的味道. 至少不是无路可走的地步. 
+
+\subsection{Homebrew}
+虽然苹果的Terminal终端和Windows的CMD以及Powershell
+比起来真是好用太多了. 
+\footnote{参见\href{http://turnoff.us/geek/love-powershell/}{漫画}}
+但是总是缺了一点东西: 比如一个像主流Linux发行版一样好用的包管理器, 
+或者是(用一个比较离谱的比喻来说就是)应用市场. 
+想要使用别人写好的命令行程序的话, 没有包管理器, 就要自己解决依赖, 
+编译等的问题的话实在是有点麻烦. 
+
+所以, 如果安装了一个macOS的包管理器的话, 以后的生活就会变得更加美好. 
+
+(假设你已经解决了网络的问题)
+
+那么只需要按照官网提供的脚本在终端里面运行就好了: 
+
+\begin{lstlisting}
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+\end{lstlisting}
+
+当你安装好了以后, 可以使用以下命令来检查homebrew的版本来检测是否安装到位: 
+
+\begin{lstlisting}
+  > brew -v
+  Homebrew 3.3.16
+\end{lstlisting}
+
+假如你想要找什么软件包的话, 可以到\href{https://formulae.brew.sh}{官网}上去找. 
+
+并且官网上的教程写得很详细, 我就不卖丑了, 就介绍两个命令: 
+
+\begin{lstlisting}
+  > brew install pkg
+  > brew uninstall pkg
+\end{lstlisting}
+
+分别是安装和卸载叫做pkg名字的软件包. 
+
+\subsection{Ruby}
+虽然macOS自带了ruby, 但是这个ruby用起来不仅不够舒服, 还动不动就会报错, 
+据说这是因为macOS的ruby删除了很多的特性, 不过假如你已经安装好了homebrew, 
+你可以直接: 
+
+\begin{lstlisting}
+  > brew install ruby
+\end{lstlisting}
+
+这样就可以安装ruby了. 
+\footnote{假如你想安装不同版本的ruby, 建议安装\href{http://rvm.io}{rvm}}
+
+\subsection{NeoVim}
+我们都知道Vim是一个很厉害的文本编辑器, 然后Emacs也是. 不过我用的是NeoVim, 
+因为它的Coc-nvim插件比较友好, 还有文本补全. 
+
+安装方法还是使用homebrew: 
+
+\begin{lstlisting}
+  > brew install neovim
+\end{lstlisting}
+
+然后在命令行里面输入
+
+\begin{lstlisting}
+  > nvim filename
+\end{lstlisting}
+
+就可以用Neovim来编辑文件名字叫做\underline{filename}的文件内容了. 
+具体的内容之后会写. 

@@ -1,0 +1,60 @@
+%========================
+% 使用的是 ElegantBook 书籍模版: 
+% 原本的模版在这里: https://github.com/ElegantLaTeX/ElegantBook
+%========================
+\documentclass[lang=cn,13pt]{elegantbook}
+
+% 引入 Tikz 绘图包
+\usepackage{tikz}
+\usepackage{tikz-qtree}
+
+% 使用 minted 包来进行语法高亮
+\usepackage{minted}
+% 使用教程: 
+% \begin{minted}{ruby}
+%   # 块代码
+% \end{minted}
+% \mint{ruby}|行代码|
+
+\title{标题还没想好}
+\subtitle{阿姆斯特朗回旋加速喷气式阿姆斯特朗炮使用手册}
+
+\author{马猴烧酒}
+\institute{万国马猴阿姆斯特朗回旋加速喷气式阿姆斯特朗炮研究所}
+\date{2022}
+\version{0.0}
+%\bioinfo{自定义}{信息}
+
+\extrainfo{任何足够先进的科技, 都和魔法难辨差异. -- 阿瑟·克拉克}
+
+\setcounter{tocdepth}{3}
+
+\logo{logo.jpg}
+\cover{cover.jpg}
+
+% 本文档命令
+\usepackage{array}
+\newcommand{\ccr}[1]{\makecell{{\color{#1}\rule{1cm}{1cm}}}}
+
+% \definecolor{customcolor}{RGB}{32,178,170}
+% \colorlet{coverlinecolor}{customcolor}
+
+\begin{document}
+
+\maketitle
+\frontmatter
+
+\include{chapter/0_preface.tex}
+
+\tableofcontents
+
+\mainmatter
+
+\include{chapter/1_language.tex}
+
+\appendix
+
+\include{appendix/0_env.tex}
+\include{appendix/1_why.tex}
+
+\end{document}
