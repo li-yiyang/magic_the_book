@@ -13,7 +13,7 @@
 \begin{quotation}
   心智的活动, 除了尽力产生各种简单的认识之外, 主要表现在如下三个方面: \\
   1) 将若干简单认识组合为一个复合认识, 由此产生出各种复杂的认识. \\
-  2) 将两个认识放在一超对照. 不管它们如何简单或者复杂. 在这样做时并不将它们合而为一. 由此得到有关它们的相互关系的认识. \\
+  2) 将两个认识放在一起对照. 不管它们如何简单或者复杂. 在这样做时并不将它们合而为一. 由此得到有关它们的相互关系的认识. \\
   3) 将有关认识与那些在实际中和它们同在的所有其他认识隔离开. 这就是抽象. 所有具有普遍性的认识都是这样得到的. \\
 
   John Locke - An Essay Concerning Himan Understanding (1690)\footnote{来自SICP. 一本我觉得很好的书. }
@@ -254,8 +254,6 @@ Peter Norvig在其书PAIP中写道: "Learning a language involves remembering vo
 
 那么简单的分析我们就介绍到这里了. 总结一下: 
 
-我们在上面的
-
 \begin{itemize}
   \item 在Ruby里面, 所有的东西都是对象(object), 所以处理起来的形式就像是\textbf{object.method(arg)}这样的形式. \footnote{比如四则运算的运算符, 其实也可以定义为\mintinline{ruby}{3.* 2}这样的形式, 只是为了方便人的阅读, 所以一般不会这样写而已; 或者是赋值语句, 也是内部有类似方法的定义的, 并且为了最后的美观提供了一个额外的写法而已. }
   % \item 在Ruby里面, 所有的表达式都有返回值. 
@@ -266,14 +264,14 @@ Peter Norvig在其书PAIP中写道: "Learning a language involves remembering vo
 
 \begin{example}
   请将下面的一些代码片段变成\mintinline{ruby}{a.b(c)}的形式: 
-  首先是一个循环的代码: 
+  首先是一个循环的代码: \footnote{这个东西可以写成这样的形式: \mintinline{ruby}{Kernel.loop(&block)}. 虽然看起来像是一种特殊结构, 但是实际上也是一种\mintinline{ruby}{a.b(c)}的形式啦. }
   \begin{minted}{ruby}
     loop do
       # ...
     end
   \end{minted}
   
-  然后是一个更加普通的打印输出的代码: 
+  然后是一个更加普通的打印输出的代码: \footnote{可以写成这样的形式: \mintinline{ruby}{Kernel.puts(param)}}
   \begin{minted}{ruby}
     puts "How are you? "
   \end{minted}
@@ -286,13 +284,339 @@ Peter Norvig在其书PAIP中写道: "Learning a language involves remembering vo
   这是因为在Ruby里面, 所有的表达式都有返回值, 于是语句前面的表达式的计算结果就会作为后面的表达式中的对象的身份来继续执行. 用括号来表示运算的优先级就像是: \mintinline{ruby}{(a.b(c)).d(e)}. 这样的话我们就拥有了通过简单的形式来构造复杂的语句的能力了. 
 \end{example}
 
-\subsubsection{特殊和一般的形式}
+\begin{example}
+  像之前的加法一样, 画出执行过程的分解, 比如上面嵌套的过程: 
+
+  \begin{quotation}
+    \begin{minted}{ruby}
+      string.gsub("(", "").gsub(")", "").upcase
+    \end{minted}
+  \end{quotation}
+
+  就可以写成: 
+
+  \begin{figure}[h]
+    \centering
+    \begin{tikzpicture}
+      \tikzset{grow'=right,level distance=60pt}
+      \tikzset{execute at begin node=\strut}
+      \tikzset{every tree node/.style={anchor=base west}}
+      \Tree [.gsub [.gsub [.upcase ]]]
+    \end{tikzpicture}
+    \caption{虽然很短, 但是这是为了防止你觉得太简单}
+  \end{figure}
+
+  那么来点稍微给力点的: 
+
+  \begin{quotation}
+    \begin{minted}{ruby}
+      puts("Hello, " + "cigaM ykcuL".reverse.upcase)
+    \end{minted}
+  \end{quotation}
+
+  \begin{figure}[h]
+    \centering
+    \begin{tikzpicture}
+      \tikzset{grow'=right,level distance=60pt}
+      \tikzset{execute at begin node=\strut}
+      \tikzset{every tree node/.style={anchor=base west}}
+      \Tree [.puts [.add [.upcase .reverse .\text{"cigaM ykcuL"} ] [.\text{"Hello, "} ]]]
+    \end{tikzpicture}
+    \caption{执行的顺序是从右到左的, 请思考是为什么结构上看是从左到右的但是执行的顺序却相反. }
+  \end{figure}
+
+  那么试着看看别的代码来理解它们形式和执行的意思吧, 这个时候, 你已经可以在形式上读懂很多的代码啦. (又是一个关于你已经学会了$1+1$了, 现在来看... 的笑话了. )
+\end{example}
+
+\subsection{特殊和一般的形式}
 其实除了上面介绍的那种最最一般的形式, 在Ruby里面还有一些特殊的规则形式. 这些规则形式也许可能没有办法化简成普通的\mintinline{ruby}{a.b(c)}的形式, 所以会被Ruby特殊地去处理和执行. 我只会简单地介绍最常见的一些形式和规则, 然后在之后, 如果有需要的话, 再会增加介绍新的内容. 
 
-\begin{itemize}
-  \item \textbf{为过程命名}\\
-  前面我们看到过了为值命名的变量, 其实不仅可以为值命名, 我们还能够为过程命名. 就好像是道士们口中念念有词, 召唤了一位金刚力士. 然后你就可以通过大喊他的名字来调用
-\end{itemize}
+\subsubsection*{数据形式和字面值}
+我们简单的赋值形式其实就算是一种比较特殊的形式了. 不过一个等号的形式如此简单... \footnote{其实也可以有一点点有意思的地方, 这个我会在后面写啦. 因为这个东西有的时候可以看作是\mintinline{ruby}{a.b(c)}的形式, 但是有的时候又不能够这样看. 虽然这样的不一致性让人很不爽, 但是我们还是先接受吧, 我会想想有没有一种好的方式来解决这个问题的. 虽然这个时候Lisp的列表的形式就看起来很香了. 因为解释起来非常便利, 即列表的第一个元素就是函数, 而其后面的都是函数的参数. } 那就暂时放过它吧. 
+
+那么对于我们赋值的东西, 也就是数据. 正如前面我们看到的\mintinline{ruby}{1, 2, 3}, 以及\mintinline{ruby}{"文字"}之类的值的形式都是比较常见的数据的字面形式. 
+
+比如说, 我们可能想要储存一个三年E班花名册, 但是这个时候, 使用变量的话, 就意味着我们可能需要这样命名: 
+
+\begin{quotation}
+  \begin{minted}{ruby}
+    student_no_1 = "Akabane Karuma"
+    # ...
+    student_no_7 = "Kayano Kaede"
+    # ...
+    student_no_11 = "Shiota Nagisa"
+    # ...
+  \end{minted}
+\end{quotation}
+
+这样是不是太麻烦了呢? 没错, 所以Ruby中构造了一种叫做数组(Array)的数据类型, 让我们能够将一连串的数据储存组织在一起. \footnote{我们只会形式化地定义, 目前不会介绍如何具体实现. 后面会介绍如何实现. }
+
+\begin{quotation}
+  \begin{minted}{ruby}
+    students = ["Akabane Karuma", "Kayano Kaede", "Shiota Nagisa"]
+  \end{minted}
+\end{quotation}
+
+这个时候, 我们用方括号来表示边界, 然后在其中用逗号来区分两个不同的元素. 这个时候, 我们就定义了一个数组. 然后在访问的时候, 只需要告诉数组元素的位置, Ruby就会为我们去寻找相对应的值. \footnote{唉, 为什么这么想要知道怎么实现的呢? 好吧, 好吧. 我的答案是, 并没有一种绝对的实现方式, 比如说, 我们可以像C一样, 用针对寄存器的思考方式来实现: 通过设定基值和偏移量在地址上来寻找所对应的值. 但是我们又可以构造一个链表, 通过递归的方式来在列表上移动, 然后寻找所对应的值. 可是, 现在你知道了这些有什么用呢? 我觉得只会限制你的思想, 因为我觉得计算机就是一种约定主义: 如何通过约定的方式来约定一种结构才是比较有意思的东西. \\ 这个以后就体现了一种抽象的方式, 就像是在数学中, 我们定义了一种东西叫做集合. 对于集合的严格定义, 在使用的时候, 我们可以不必太过在意. 这就是一种抽象的概念. 但是这并不是说具体的实现和定义并不重要, 因为据我所知, 集合的定义也不是只有一种的, 比如\href{https://zh.wikipedia.org/wiki/公理化集合论}{ZF和ZFC集合论}.}
+
+\begin{quotation}
+  \begin{minted}{ruby}
+    puts "Hello! " + students[0]
+    puts "Good night. " + students[1]
+  \end{minted}
+\end{quotation}
+
+唯一需要注意的是, 这里有一个关于计算机的笑话: 某些程序员数数的时候老是和别人差一, 因为他们都是从零开始数数的. 这是因为计算机是从零开始表示最开始的位置. 
+
+但是有时候我们也会想要通过名字来访问, 就像是变量名字一样. 比如说我们想要一个字典, 对于输入的一个单词, 我们想要给出它的一个定义, 在形式上, 我们可以记作: 
+
+\begin{quotation}
+  \begin{minted}{ruby}
+    dictionary = {
+      "book" => "ほん", "Tao" => "道", "气" => "Qi", 
+      "镜子" => "mirror", "つき" => "moon"
+    }
+  \end{minted}
+\end{quotation}
+
+我们把类似这样的形式叫做哈希(Hash). 其中我们会发现花括号的形式和之前的代码块的形式类似, 但是它们的含义并不一致(并且你也不能够用do..end来替换上面的形式, 尽管对代码块来说这样是可以的). 不过你可以理解为它们都表示了一大块的东西打包在一起的形式. 需要注意的是, 和数组的形式类似, 都是用逗号来分隔元素, 只是Hash中的元素是成对出现的而已. 并且上面的代码中的换行并不是必须的, 只是为了美观加入的. 
+
+然后就能够用形式上处于\textbf{=>}前面的标记来访问箭头后面的标记了: \footnote{因为这样的形式, 所以我们常常把在前面的形式部分叫做key(键), 后面的叫做值(value). 就好像是拿钥匙去开锁, 对应的钥匙开对应的锁, 得到对应的数据. (或者是在钢琴上按键, 会弹奏出对应的音符. ), 我们会在后面介绍一下这个东西的原理. }
+
+\begin{quotation}
+  \begin{minted}{ruby}
+    puts "The meaning of Tao is " + dictionary["Tao"]
+    puts "And the meaning of book is " + dictionary["book"]
+  \end{minted}
+\end{quotation}
+
+上面我们简单介绍了一些组织许多数据的方法. 这样的数据结构在大部分的编程语言中都有类似的实现. 比如Python中的元组, 列表, 字典之类的, C语言中的数组之类的. 这是因为Ruby从这些语言中吸取了经验. 最后介绍一种Ruby的数据表示形式: 符号(Symbol): \mintinline{ruby}{:this_is_a_simple}, 在形式上看起来, 符号就像是一种用冒号开头的没有引号的字符串. 在大部分情况下, 符号是用于表示一些方便区分名字, 但是这个名字不太需要编辑修改的问题. 
+
+不过现在只需要知道, 这些数据对应的形式大概是这样的就足够了. 
+
+\subsubsection*{为过程命名}
+前面我们看到过了为值命名的变量, 其实不仅可以为值命名, 我们还能够为过程命名. 就好像是道士们口中念念有词, 召唤了一位金刚力士. 然后你就可以通过大喊他的名字来指挥他来帮助我们来干活. 
+
+比如前面的\mintinline{ruby}{print "I'm Lucky. "}, 这个时候我们的金刚力士的名字叫做"print". 就像是友人帐一样, 当我们大喊它的名字的时候, (假如它是记录在帐的话), 它就能够跳出来, 然后接受我们的命令(也就是我们传入的参数), 最后就老老实实地去执行自己的任务. 
+
+上面的都已经是见过面的结构形式了. 但是我们可能也会想要增加新的"朋友"到自己的友人帐上. 这个时候, 我们就会需要有这样的形式: 
+
+\begin{quotation}
+  \begin{minted}{ruby}
+    def method_name (parameter)
+      # ...
+    end
+  \end{minted}
+\end{quotation}
+
+没错, 这个的形式和我们之前见过的形式都不太一样. 所以我们就将这个形式称为一种特殊的形式. \footnote{这个时候我就有点想要介绍Lisp的语法了, 毕竟它只有一种形式, 这样的话学起来非常的漂亮. 但是问题就是, Lisp的思维太美妙了, 我认为目前我的理解不能够很好地表现这样的东西. 不过我最近在读了, 所以应该会把一些类似的东西合成进来. }
+
+举个例子, 假如有这样的一个方法\footnote{其实也有很多人把这个东西叫做函数, 在这本书里面, 两种叫法我都会使用, 所以加入你一下子看到我说方法, 一下子看到我说函数的话, 请不要觉得奇怪. 我在之后会尽量规范些使用的. }定义: 
+
+\begin{quotation}
+  \begin{minted}{ruby}
+    def puts_each_char(str)
+      str.each_char do |c|
+        puts c
+      end
+    end
+    print_each_char("Lucky")
+  \end{minted}
+\end{quotation}
+
+一个朴素的理解方法就是, 每当出现有调用的形式, 即\mintinline{ruby}{print_each_char(str)}的时候, 也就是上面的\\\mintinline{ruby}{print_each_char("Lucky")}, Ruby就会把这个在定义中的\mintinline{ruby}{str}记作\mintinline{ruby}{"Lucky"}, 然后执行在定义中的那一段代码. 
+
+\begin{example}
+  我们可以用这样的形式结构来为过程命名, 然后在之后进行调用. 这样的好处就是我们可以讲复杂的过程用一个简单的名字来代替. 这样我们就拥有能够将一个复杂过程化简成简单过程的组合的能力. 
+
+  比如说, 我们想要一个能说废话的小精灵, 当我们喊出它的名字(这里我把它叫做\textbf{say})的时候, 就能够输出一些类似于"令人讨厌的棉线写问题"这样的虽然看起来挺符合语法, 但是却没什么意思的随机句子. \footnote{这个例子来自于\href{https://github.com/norvig/paip-lisp}{PAIP}一书. 顺带一提, 这本书我觉得也很有意思. 原书所用的是Common Lisp, 我这里给出了一个Ruby的实现. }
+  
+  \begin{quotation}
+    \begin{minted}{ruby}
+      # 一句废话由主谓宾构成
+      def say
+        return subject() + verb() + object()
+      end
+      
+      # 主语就是形容词加上名词
+      def subject
+        return adj() + noun()
+      end
+      
+      # 宾语也是形容词加上名词, 所以和主语一致
+      def object
+        return subject()
+      end
+      
+      # 动词是...
+      def verb()
+        pattern = ["缠", "解", "是", "写", "讨厌", "觉得"]
+        return pick(pattern)
+      end
+      
+      # 形容词是...
+      def adj
+        pattern = ["细长的", "令人讨厌的"]
+        return pick(pattern)
+      end
+      
+      # 名词是...
+      def noun
+        pattern = ["棉线", "问题", "书", "论文稿", "梦想", "想法"]
+        return pick(pattern)
+      end
+      
+      # 从一个数组中随便选择一个
+      def pick(arr)
+        length = arr.length
+        return arr[rand(length)]
+      end
+    \end{minted}
+  \end{quotation}
+
+  在上面的过程中, 我们实现了一个能够说出狗屁不通废话的小机器人啦. \footnote{作为一个例子, 我\mintinline{ruby}{say()}得到的结果是\mintinline{ruby}{"令人讨厌的问题是令人讨厌的想法"}, 竟然还算是有点意思. 毕竟这是因为词库选得好嘛. \\ 又, 据说在早期的人工智障Siri里面, 某些句子就是通过编写很好的词库来实现的. 这种生成语句的方法的缺点十分明显: 即前一句和后一句话可能是毫无关联的话语, 即上下文无关生成; 并且句子中的成分之间的关系也是十分脱节的, 比如我们可能会得到一些类似于"细长的问题写细长的问题"这样的东西. 不过哪怕是一个简单的例子, 其实我们也有可以玩着耍的地方. } 在某种程度上说, 我们通过构造方法和抽象的方式来实现了下图一样的一个简单的语言结构: 
+
+  \begin{figure}[h]
+    \centering
+    \begin{tikzpicture}
+      \tikzset{grow'=right,level distance=60pt}
+      \tikzset{execute at begin node=\strut}
+      \tikzset{every tree node/.style={anchor=base west}}
+      \Tree [.一句话 [.主语 [[.形容词 ] [.名词 ]]] [.谓语 ] [.宾语 [[.形容词 ] [.名词 ]]]]
+    \end{tikzpicture}
+    \caption{注意, 我在这里的写的语法结构是错的, 这是写完之后才发现的. }
+  \end{figure}
+  
+  没错, 我在画完上面的那个树状图后就发现了不对劲的地方, 因为我把语法结构给搞错了. \footnote{形容词应该归为定语的成分的, 不过实在是尴尬, 语文学的不太行. } 那么通常的想法应该是去修改函数之间的关系, 然后, 比方说, 加入一个补语的函数, 然后重新更改\textbf{say}函数的逻辑... 
+
+  上面的逻辑体现了引入过程抽象(即函数)的好处: 我们只需要修改对应部分就能够达到控制整体的效果, 而在使用函数的时候, 只需要知道如何输入就会得到如何输出 -- 即一个\href{https://en.wikipedia.org/wiki/Black-box_testing}{黑箱方法}. 但是, 是不是总觉得这样仍然看不出来有什么特别便利的地方呢? 于是新的想法产生了, 如果我们能够构造这样的一个函数, 能够自动根据输入语法结构来生成结果的话, 在某种程度上来说是否就更加便捷了? 
+
+  于是我们先做一些形式上的约定, 假如用一个哈希表来表示语法的转移规则, 每一个键对应着语法树上的一个节点, 用一个数组来表示节点的分支, 而用一个数组套数组的形式来表示从中任意选择一个值. 于是就可以构造出这样的一个树: \footnote{在\LaTeX 里面, 我使用的是\href{https://ctan.org/pkg/minted}{minted}包来输出代码的, 但是看来对中文字符的支持好像不太行? \\ 又, 因为尝试使用tikz包画出语法树而形态爆炸, 所以我决定先不放语法树了, 请留作自己的思考吧. (放心, 用手画很快的, 只是tikz包有点坑爹. 标记型语言真是狗啊. )}
+
+  \begin{quotation}
+    \begin{minted}{ruby}
+      grammar = {
+        :句子 => [:定语_, :主语, :谓语, :定语_, :宾语, :补语_],
+        :主语 => [:名词], :定语 => [:形容词], :宾语 => [:名词],
+        :定语_ => [["", :定语]], :补语_ => [["", :补语]], 
+        :补语 => [:介词, :定语_, :主语], :谓语 => [:动词],
+        :名词 => [["棉线", "问题", "书", "论文稿", "梦想", "想法"]], 
+        :形容词 => [["细长的", "令人讨厌的"]], 
+        :动词 => [["缠", "解", "是", "写", "讨厌", "觉得"]],
+        :介词 => [["在", "于", "与", "和"]]
+      }
+    \end{minted}
+  \end{quotation}
+  
+  那么我们构造这样的一个过程来处理给定的grammar: 
+
+  \begin{quotation}
+    \begin{minted}{ruby}
+# 根据规则来输出句子
+# 定义中的+res = :句子+表示变量res的默认值就是+:句子+
+def generates(rules, res = :句子)
+  out = ""
+  rules[res].each do |item|
+    if item.is_a? Array # 随机选择
+      choice = pick(item)
+      if choice.is_a? String
+        out << choice
+      elsif rules.include? choice
+        out << generates(rules, choice)
+      end
+    elsif item.is_a? Symbol # 是节点
+      out << generates(rules, item)
+    end
+  end
+  return out
+end
+    \end{minted}
+  \end{quotation}
+
+  这个时候我们的程序实现中就只有一个函数\footnote{如果你试着运行的话\mintinline{ruby}{generates(grammar)}, 你就会得到类似于"想法缠想法和书", "令人讨厌的论文稿是细长的棉线"这样无厘头的废话. }, 并且和之前为描述过程构造函数的想法不同, 这个时候我们是通过为带有一定格式的数据(也就是我们用来表达\textbf{grammar}的语法结构的数据)构造一个脚手架 -- 你可以这样想象: 我们的程序就像是一个运行在有结构的数据上的一个机器. 
+
+  \begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{image/chapter/1_language/operate_on_data.jpg}
+    \caption{我们的机器运行在有结构的数据上}
+  \end{figure}
+
+  % 正是因为数据有一定的结构, 所以我们可以编写一定的程序来根据数据的结构来进行处理. 这个时候, 我们的过程的抽象更进了一步: 我们是把数据看作是描述过程的数据. 
+
+  这个时候我们的思路是这样的: 用一种方式描述数据, 然后构造能够将数据转化为过程的函数. 这个时候, 可以说我们不仅仅是将原本的过程抽象为一个名字了, 而是将数据当作过程, 进行了一次抽象. \footnote{我们会在之后继续介绍一些关于这样抽象的想法. }
+
+  并且这样的抽象还有一个好处, 就是能够支持处理所有满足这样形式数据, 也就是说, 哪怕这段\textbf{generates}代码并不是用来生成上面的句子, 而是用来生成一篇狗屁不通议论文的话, 也能够通过类似的结构来生成文章. \footnote{这里只是给一个我高中想到的无聊的框架, 只是一个概念, 实际的实现肯定没有那么简单吧. 比如说: 段落 => 论点, 例子, 论点; 文章 => 下定义的段落, 讲缺点的段落, 讲适度利用的好处的段落, 还有啥我忘光了...} 或者是来一个可以随机编程的机器, 比如通过\mintinline{ruby}{a.b(c)}的结构来随机生成一段Ruby代码. (就作为一个思考游戏吧. 没准能够有点用处. )
+\end{example}
+
+\subsubsection*{类型和模块}
+我们前面遇到的普遍类型都是有着\mintinline{ruby}{a.b(c)}的形式. 其中\textbf{a}被我们形式地称为对象, \textbf{b}被我们形式地称为对象的方法, \textbf{c}被我们形式地称为对象方法的参数. 
+
+并且我们也知道, 对象有许多的种类, 比如我们前面介绍过的数组, 哈希, 字符串, 整数, 符号等等. 这些种类有着它们自己的名字. 并且假如我们也想要构造类似的种类的话, 我们可以如下形式地定义: 
+
+\begin{quotation}
+  \begin{minted}{ruby}
+    class Name
+      def method_name
+        # ...
+      end
+      # ...
+    end
+  \end{minted}
+\end{quotation}
+
+比如说我们今天遇到了一个神奇动物师, 比如说他养了一堆不同的神奇动物在自己的帽子里. \footnote{其实我觉得在帽子里养神奇动物更有意思. 毕竟据说英国绅士都有一顶绅士帽. }因为他是专业养殖户(误), 所以对神奇动物的了解和分类是一流的. 比如说, 对于\textbf{LazyCat}, 它的叫声是咪咪呼呼; 对于\textbf{LostPigeon}, 它的叫声是咯咯咯咯; 而对于\textbf{DearDeer}和\textbf{TwoEarRabbit}尽管它们的叫声, 据这位资历丰富的动物学家所说, 还未被人类听过, 但是它们都属于\textbf{MagicAnimal}. 
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.25\textwidth]{image/chapter/1_language/class_of_animal.jpg}
+  \caption{动物学家}
+\end{figure}
+
+于是我们就能够用上面的例子来形式地定义这些神奇的动物: 
+
+\begin{quotation}
+  \begin{minted}{ruby}
+    class MagicAnimal
+      def bark
+      end
+    end
+
+    class LazyCat < MagicAnimal
+      def bark
+        puts "咪咪呼呼"
+      end
+    end
+    
+    class LostPigeon < MagicAnimal
+      def bark
+        puts "咯咯咯咯"
+      end
+    end
+
+    class TwoEarRabbit < MagicAnimal
+    end
+    
+    class DearDeer < MagicAnimal
+    end
+  \end{minted}
+\end{quotation}
+
+于是他坐下来和我们聊了聊他和自己的小猫\textbf{kitty}的发现过程, 在神奇的一个月夜, 坐电梯到楼下扔垃圾, 然后在雾蒙蒙的视野里, 忽然看见了一双黄色的眼睛, 闯过了灰暗的雨雾在墨绿色的垃圾桶上闪耀. 两个家伙面面相觑, 就像是被施了定身术一般, 时间停止了流动. 
+
+嗯, 所以用Ruby的代码来描述就是: 
+
+\begin{quotation}
+  \begin{minted}{ruby}
+    kitty = LazyCat.new
+    kitty.bark # => 咪咪呼呼
+    kitty.class # => LazyCat
+    kitty.class.superclass # => MagicAnimal
+  \end{minted}
+\end{quotation}
+
+这个时候我们就得到了一只LazyCat. 并且我们也能够知道它的从属关系. 并且就像是那位魔法动物学家坚信的那样, 所有的MagicAnimal都应该会bark, 只是不同种类的叫声不同. (虽然正如他所说, 还有一些种类的MagicAnimal的叫声他并没有听过)
+
+除了像这样的\textbf{class...end}, Ruby中还有一种\textbf{module...end}形式的一组关键词. 后者在定义的形式上和前者别无二致, 所以我便不再介绍了. (但是在后面会详细介绍相关内容的\footnote{这个东西叫做Namespace, 如果想要提前了解的话, 可以去搜索相关的内容. })
 
 % \subsection{简单的分解和组装的例子}
 % \begin{quotation}
@@ -413,6 +737,157 @@ Peter Norvig在其书PAIP中写道: "Learning a language involves remembering vo
 上面的故事里面, 我们只是在做类似于思想训练的东西, 没有接触很多实际的操作. 这怎么可以呢. 只是想想, 却不实际操作, 总觉得有一种画饼的意味. 所以接下来我们来实际地接触一些实际的东西. 
 
 (又: 我现在觉得实际的东西还是在迟一点点来吧, 下面的东西请务必操作\footnote{关于操作的问题, 建议使用irb(Interactive Ruby)来操作. 关于这个, 可以看看我的这个\href{https://li-yiyang.github.io/ruby/why's_(poignant)_guide_to_ruby/why's-poignant-guide/}{翻译}. 之后会在附录中加入一些关于这个irb的介绍的. }试试看. )
+
+\subsection{过程视为数据}
+\begin{quotation}
+  舍利子, 色不异空, 空不异色, 色即是空, 空即是色, 受想行识, 亦复如是. 舍利子, 是诸法空相, 不生不灭, 不垢不净, 不增不减. 
+
+  \emph{《般若波罗蜜多心经》}\footnote{在\href{https://zh.wikipedia.org/wiki/般若波羅蜜多心經}{维基百科}上对这句话的解释是: 一切的"形态", "影像", "物质"都是"无常", "非固定", "不恒久"的. \\说一个没什么关系的事情. 我记得很久之前我读过一篇相关的文章, 写的很不错. 但是现在在网上怎么找也找不到了. 真是麻烦. \\(下面的理解不过是我个人的主观臆断, 只是为了方便引入我下面介绍的内容所以介绍的. 请专业佛学院的读者放过我. ) 既然空(无常与变化)和色(物质与形态)并非是对立的关系, 那么便不必将二者所对立起来. 与其坚持"说一切有", 或者是为了追求"空"而追求. 所以与其追求一极, 不如观察其中的统一性而辩证地去认识. }
+\end{quotation}
+
+我们的在前面构造的说狗屁不通废话的小机器人是将数据看作一种组织生成语言的过程. 我们构造了 \\\mintinline{ruby}{grammar} 这个数据表, 描述的是如何生成一句话的过程, 即通过主谓宾这样的结构来生成句子的一个过程. 
+
+比如说我们写下了一段代码, 并将其保存在文件里面, 然后运行这段代码\footnote{具体的方法就是: 用文本编辑器编辑一段代码, 常见的文件名后缀是\textbf{.rb}. 然后在终端中执行命令\mintinline{shell}{ruby filename.rb}就能够执行代码了. 或者也可以通过irb来运行代码. }, 这个时候我们是把过程视为数据储存在计算机中. 在Ruby中(以及其他的很多的一些编程语言中)都有一种\textbf{eval}的函数, 能够将储存在数据中的过程视为代码并执行: 
+
+(在irb中运行代码)
+
+\begin{quotation}
+  \begin{minted}{ruby}
+    3.0.0 :001 > data = "puts 'Hello'"
+      => "puts 'Hello'" 
+    3.0.0 :002 > eval(data)
+    Hello
+      => nil 
+    3.0.0 :003 > puts 'Hello'
+    Hello
+      => nil 
+  \end{minted}
+\end{quotation}
+
+可以发现, 作为字符串储存的一段代码数据, 现在就能够被作为代码来执行. 在eval函数的背后, 其实有一个和我们前面构造的generates函数相类似的构造, 能够处理代码. 将保存在文本文件里面的Ruby代码变成计算机能够理解的过程数据. 
+
+但是这个时候我们不妨这样想: 既然我们可以用数据来描述过程. \footnote{其实我们的编程过程也就只是一种用数据来描述过程的想法. 就像是很早之前的纸带计算机, 据说是将程序用打孔器在纸带上按照规律来打孔, 然后传入计算机, 作为程序来运行. } 那为什么不能够把过程看作是数据, 来对像数据一样的过程进行处理呢? 
+
+于是, 基于这样的想法就构造了一种Lambda表达式, 即一种能够生成过程的表达式. 
+
+\begin{quotation}
+  \begin{minted}{ruby}
+    func = -> (param) {
+      # ...
+    }
+    func.call(param)
+  \end{minted}
+\end{quotation}
+
+上面就是形式的Lambda表达式的定义方法. 在形式上, 我们就像是构造了一把宝剑. 
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.25\textwidth]{image/chapter/1_language/lambda_sword.jpg}
+  \caption{看我的大师剑! }
+\end{figure}
+
+矮人族的工匠们都知道如何打造一把优秀的剑: 握住剑柄(也就是我们的\textbf{->})部分, 郑重地在其上镶上能够赋予其魔力的力量宝石(也就是我们传入的参数表), 最后和精心打造的剑身(也就是我们的\textbf{\{\}}的部分). 于是一把威力巨大的宝剑就诞生了. \footnote{lambda演算在1937年被Alan Turing证明和图灵机是等价的计算模型, 也就是一种满足图灵完备的计算模型. 并且lambda演算形成了所有函数式编程的基础. \\"比起指令式编程, 函数式编程更加强调程序执行的结果而非执行的过程, 倡导利用若干简单的执行单元让计算结果不断渐进, 逐层推导复杂的运算, 而不是设计一个复杂的执行过程. "(\emph{摘自\href{https://zh.wikipedia.org/zh-cn/函数式编程}{维基百科}})\\ 不过在实用的工业领域, Lambda表达式更多地会被叫做匿名函数. 因为它们就像是没有名字的函数, 可以不必用\textbf{def}这样的语句来为这个过程来定义名字就可以直接使用, 比如\mintinline{ruby}{-> { puts "Hello" }.call # => Hello}. 并且还能够将其保存到变量里面, 在日后调用. } 
+
+自古以来, 人们都认为矮人们是最伟大的工匠, 并且是固执重视荣誉, 直至死战到最后一兵一卒的英勇战士. \footnote{来自《魔戒》中矮人的形象, 注: 根据维基百科, 矮人们贪恋金银财宝, 于是导致了因为诱惑而杀害了精灵王而与精灵结怨的悲剧. 不过我们都请求他们为我们打造了如此强力的工具了, 还是只介绍他们的优点, 而将这略有遗憾缺点留在脚注的空间里吧. } 他们将充满魔力的宝石附到剑上, 念动咒语, 宝剑就开始了魔法的转化, 对于其中的转化, 我们还是不必多说了吧, (因为那可是矮人们的技术呢): 
+
+\begin{quotation}
+  \begin{minted}{ruby}
+    sword = -> (spell) { puts "#{spell.upcase} Sword!" }
+    spell = "fire"
+    sword.call spell # => FIRE Sword!
+  \end{minted}
+\end{quotation}
+
+灵巧的矮人们打造出了一把把宝剑, 除了挥舞宝剑在战场上厮杀以外, 我们还能够看到史诗中的英雄们如何从矮人那得到传说中的宝剑, 最后凭借着这把宝剑取得神圣的胜利. 这个时候, 胜利不再是一个这样那样的过程, 而是被扼在工匠的手中, 由一锤又一锤的敲击下将无数命运塑造成一个实物传递到了英雄的手中. 这个时候, 我们不再是将Lambda表达式仅仅看作是一种描述过程的东西, 而是将其看作是一种将过程数据化的东西. \footnote{感觉有点像是代数里面的映射到函数空间的映射. 不过这种我自己都搞不清楚的东西, 还是不要作为例子来介绍了吧. } 现在我们能够将过程当作数据来传递了. 举个例子, 我们之前例子里的$\sum_{i=0}^n a_i$的求和表达式. 如果用\textbf{def}的方式来定义, 我们可能就要对每一个不同的$a_i$表达式来定义不同的求和函数了: 
+
+\begin{quotation}
+  \begin{minted}{ruby}
+    def sum_i(start, stop)
+      sum = 0
+      (start..stop).each do |i|
+        sum += i
+      end
+      return sum
+    end
+
+    def sum_square_i(start, stop)
+      sum = 0
+      (start..stop).each do |i|
+        sum += i ** 2
+      end
+      return sum
+    end
+
+    # ...
+  \end{minted}
+\end{quotation}
+
+尽管上面的求和很方便, 但是在构造的过程中, 出现了许多重复的代码. 毕竟编程在很多时候是为了帮助人们减少重复单调的操作, 但是倘若编程本身就成为了单调重复的事情, 那不就变成了舍本逐末的事情了吗? 所以我们可以通过这样的方式来简化\textbf{sum}的过程: 
+
+\begin{quotation}
+  \begin{minted}{ruby}
+    def sum(start, stop, func)
+      sum = 0
+      (start..stop).each do |i|
+        sum += func.call(i)
+      end
+      return sum
+    end
+
+    # sum of i
+    sum(1, 5, -> (i) { i }) # => 15
+    # sum of square i
+    sum(1, 5, -> (i) { i ** 2 }) # => 55
+  \end{minted}
+\end{quotation}
+
+上面的代码, 我们通过把过程用Lambda表达式\mintinline{ruby}{-> (i) { i }} 和 \mintinline{ruby}{-> (i) { i ** 2 }}来表示成数据, 然后传递给\mintinline{ruby}{sum}函数, 这样就简化了复杂过程的构造了(因为我们共用了\textbf{sum}的这段构造过程. ). 
+
+% \begin{example}
+%   不仅如此, 我们甚至还能够使用Lambda表达式来表示更多的东西. \footnote{下面的例子来自于《计算的本质：深入剖析程序和计算机》一书. 叫做Church numeral. 是\href{http://dx.doi.org/10.2307/2371045}{Lambda演算}的发明者Alonzo Church提出来的一种表示数的方式. \\其实在数学里面也有类似的定义, 比如说在数学分析的书里面就有介绍用集合的方式来表现包含零的自然数: 比如用$\varnothing$来表示$0$, $\{\varnothing, \{\varnothing\}\}$表示$1$, 以此类推就能够表示任何的数了. }
+% 
+%   那么如果想要构造一堆数, 只要构造一个零, 一个一, 然后构造加法就好啦. 
+% 
+%   \begin{quotation}
+%     \begin{minted}{ruby}
+%       zero = -> f { -> x {    x    }}
+%       one  = -> f { -> x {  f[x]   }}
+%       two  = -> f { -> x { f[f[x]] }}
+% 
+%       def to_i(lambda_number)
+%         lambda_number[-> n { n + 1 }][0]
+%       end
+% 
+%       def add(a, b)
+%         
+%       end
+%     \end{minted}
+%   \end{quotation}
+% \end{example}
+
+不过其实往函数里面传入作为数据的过程其实我们早就已经见过了. 回想一下, 这不就是我们的代码块block吗? 比如说, 假如我们有这样的一个\textbf{sum}函数, 能够像这样来调用: \mintinline{ruby}{sum(start, end) { |i| i ** 2 }}之类的. 我们可以像这样来定义这个sum函数: 
+
+\begin{quotation}
+  \begin{minted}{ruby}
+    def sum(start, stop, &block)
+      sum = 0
+      (start..stop).each do |i|
+        sum += yield i
+      end
+      return sum
+    end
+
+    # sum of i
+    sum(1, 5) { |i| i }
+    # sum of i ** 2
+    sum(1, 5) { |i| i ** 2 }
+  \end{minted}
+\end{quotation}
+
+(这部分还需要重新写... )
+
+在上面结构中, 我们把
 
 \subsection{用你的名字呼唤我}
 \begin{quotation}
@@ -690,90 +1165,109 @@ Ruby中的"区域"就像是这样的东西. 这也就是为什么它的正式名
 
 上面的代码我们就利用了一个存放数据的概念来做了一个交换, 一开始, 两个变量手中有着各自的值. Léon将自己的值交给了中间人Old Tony, 然后拿起了Mathilda Lando的值. 而Mathilda Lando则从中间人那里拿到了Léon曾经的值. 于是交换过程结束. 我们利用了一个中间变量来实现了两个变量之间值的转换. \footnote{虽然我们还有更多的转换方法, 其中Ruby提供了一个非常酷的方法: \mintinline{ruby}{leon, mathilda_lando = mathilda_lando, leon}, 不过这个代码的背后也有中间变量. 不过是Ruby自动为我们生成的. 为了理解这个, 我们还有一些路要走(因为我不打算接下去将数值类型), 所以放在脚注里面. }
 
-\subsection{高速吟唱魔法咒语的什么的真是受够了}
-想象一下人头攒动的庙宇中烟雾缭绕, 本就昏暗的庙堂因此更加声明而难以看清四周. 身边传来楠楠的祷告声, 人们念着自己的心愿. 台上的法师的言语穿过烟雾和人声, 更加得遥远和神秘, 本就听不清楚的祷告声变得更加的让人迷幻了: \footnote{这一篇我打算以传统的祈雨仪式为例子. (原因是因为之前看到了一篇韩愈的祈雨文, 可惜不知道叫什么了. 后来找到了杜牧的祭文. 本来想要删掉的, 因为太多了, 最后我觉得还是保留下来吧. 还有一本专著叫做《從人間世到幽冥界: 唐代的法制, 社會與國家》不过没有看过. ) 只是在网络上搜索相关的资料发现简直是寥寥无几, 并且也没有很详细的介绍. 大多是那种概括性的文字, 果然还是应该要找到那种一手资料吗. 不过通过这次的尝试, 我发现了自己的不足了. 果然还是缺少一些积累吗. }
+% \subsection{高速吟唱魔法咒语的什么的真是受够了}
+% 想象一下人头攒动的庙宇中烟雾缭绕, 本就昏暗的庙堂因此更加声明而难以看清四周. 身边传来楠楠的祷告声, 人们念着自己的心愿. 台上的法师的言语穿过烟雾和人声, 更加得遥远和神秘, 本就听不清楚的祷告声变得更加的让人迷幻了: \footnote{这一篇我打算以传统的祈雨仪式为例子. (原因是因为之前看到了一篇韩愈的祈雨文, 可惜不知道叫什么了. 后来找到了杜牧的祭文. 本来想要删掉的, 因为太多了, 最后我觉得还是保留下来吧. 还有一本专著叫做《從人間世到幽冥界: 唐代的法制, 社會與國家》不过没有看过. ) 只是在网络上搜索相关的资料发现简直是寥寥无几, 并且也没有很详细的介绍. 大多是那种概括性的文字, 果然还是应该要找到那种一手资料吗. 不过通过这次的尝试, 我发现了自己的不足了. 果然还是缺少一些积累吗. }
+% 
+% \begin{quotation}
+%   下土之人, 天實有之. 五穀豐實, 寒暑合節, 天實生之. 苗房甲而水湮之, 苗秀好而旱莠之, 饑即必死, 天實殺之也. 天實有人, 生之孰敢言天之仁, 殺之孰敢言天之不仁. 刺史吏也, 三歲一交. 如彼管庫, 敢有其寶玉；如彼傳舍, 敢治其居室? 東海孝婦, 吏寃殺之, 天實寃之, 殺吏可也. 東海之人, 於婦何辜, 而三年旱之? 刺史性愚, 治或不至, 厲其身可也, 絕其命可也！吉福殃惡, 止當其身. 胡為降旱, 毒彼百姓? 謹書誠懇, 本之於天, 神能格天, 為我申聞. 
+% 
+%   \emph{杜牧《祭城隍神祈雨文》}\footnote{对不起杜牧先生, 我拿你的文字来作为例子了. 但是前面引入例子的文字实在是写得一般了. \\ 我在\href{https://m.djol.org/show-34-11627-1.html}{网络(不过建议还是不要访问, 因为看起来不正规)}上找到了一个比较像是的东西, 但是我觉得还是不如杜牧的好: \\
+%   伏以. 玄穹高上玉皇大帝并雷公, 电母, 风伯, 雨师四大雨神. 兹为**流域祈求甘霖缓解旱情而文. 雨神居上阙而管下界之水, 黎民居下界而仰上京之神, 上神赐福于黎民, 则黎民敬仰上神, 上神无视于黎民, 则黎民不信上神. 上下相关, 神民相依也. 尝曰：民以食为天, 食以粮为主, 粮以水为本. 无粮则人不存, 无水则粮不生. 今春以来, 上苍惜雨, 下界无流, 大河缩萎, 小河干涸, 田地豁裂, 庄稼枯黄, 江汉流域, 尤为其甚. 早稻因无水而少插, 中稻因无水而损苗. 时下已是中稻移栽旺季, 斯地依然干旱少雨, 无水整田. 百姓惶惶, 仕宦忧忧. 今弟子施惠奏明太上, 获准向天庭求雨, 以解斯地旱情, 保中稻栽插, 解燃眉之急, 润十方之农田, 更润百姓之心田. 恳望玉帝并四大雨神, 三日之内, 为上述旱区普降甘霖. 则百姓感上神之大恩, 三界记上神之大功. **道人 顿首叩拜}
+% \end{quotation}
+% 
+% 概括一些就是: 
+% 
+% \begin{quotation}
+%   乞雨女郎魂, 炰羞洁且繁. 庙开鼯鼠叫, 神降越巫言. 
+% 
+%   旱气期销荡, 阴官想骏奔. 行看五马入, 萧飒已随轩. 
+% 
+%   \emph{韩愈《郴州祈雨》}
+% \end{quotation}
+% 
+% \begin{quotation}
+%   汤既克夏, 大旱七年, 洛川竭. 汤乃以身祷于桑林, 剪其发, 自以为栖牲. 祈福于上帝. 于是大雨总至, 洽于四海. 
+% 
+%   \emph{《搜神记·变化篇》}
+% \end{quotation}
+% 
+% 你看, 我们可以用一些非常简明的文字来表述那些复杂的事情. 仅仅通过概念来感受这样的祈雨的氛围. 甚至这种仅仅通过概念来传递表示的能力能够超越时空, 哪怕是自己可能从来没有类似的体验的东西, 也能够通过概念的方式来理解和传递. 这里就是一种抽象的概念. \footnote{什么是抽象呢? 举个例子, 假如你的同桌搞了一支很有意思的自动铅笔, 然后借给你看看, 你抚摸着笔的外壳, 比较光滑; 笔握部分的橡胶也比较舒服; 出芯和书写也非常的快乐. 这个时候, 你是通过感官的表象来感受认识"笔"的. 但是有些时候, 你却并不能够直接通过直观或者感官来直接感受, 就像我现在是通过文字来间接的触动你的神经来产生对那支笔的认识. 这个时候就出现了一种抽象的感觉 -- 即我们不再是通过表象, 而是抽象的概念来认识一个东西了. 甚至, 哪怕这只笔已经不复存在了, 甚至只是我臆造的一个概念, 你也能够产生相应的认识. }
+% 
+% 对于计算机来说, 抽象也是一种非常重要的一种东西. 我们之前其实就已经见识了抽象的一种了: 变量. 我们通过变量这一种抽象的概念, 用变量的名字来抽象地访问一个值. 这个时候, 我们不再是具体地处理数值, 而是通过名字来形式地调用. 
+% 
+% 这一次, 我们将会不仅仅停留在对数值的抽象, 而是进一步深入, 来看一看更加有趣的对过程的抽象吧. 
+% 
+% 比方说我们现在有一个非常复杂的过程: (注: 我的目的不是为了分析这个又臭又长的烂程序, 所以不要计较里面的具体做法和实现. )
+% 
+% \begin{quotation}
+%   \begin{minted}{ruby}
+% # 一周有七天
+% 7.times do |day|
+%   # 每天十一节课
+%   11.times do |index|
+%     # 在网页中找到那一节课的信息
+%     box = file.xpath("//tbody/tr[#{index + 1}]/td[#{day + 1}]/div/a")
+%     # 假如这节课不是空的
+%     unless box == []
+%       # 有时候同一节课的时间会有不同的课
+%       box.each do |item|
+%         # 得到课程的链接
+%         link = item.xpath("@href").text
+%         # 得到课程的信息
+%         course_data = get_info(link, day)
+%         # 对于相应的课程
+%         course_data[:opening_week].each do |week|
+%           # 计算日期, 还有其他一堆东西
+%           date = start_date + 7 * (week.to_i - 1) + day
+%           the_year = date.year
+%           the_month = date.month
+%           the_day = date.day
+%           sthour = TIME_MAP[index][0][0]
+%           stmin = TIME_MAP[index][0][1]
+%           edhour = TIME_MAP[index][1][0]
+%           edmin = TIME_MAP[index][1][1]
+%           # 往日历中加入课程的信息
+%           cal.event do |event|
+%             event.dtstart = DateTime.civil(the_year, the_month, the_day, sthour, stmin)
+%             event.dtend = DateTime.civil(the_year, the_month, the_day, edhour, edmin)
+%             event.summary = course_data[:summary] + "-" + course_data[:location]
+%             event.alarm do |alarm|
+%               # alarm.summary = "Go To Class!"
+%               # 提前提醒
+%               alarm.action        = "AUDIO"
+%               alarm.trigger       = "-PT#{BEFORE_MIN}M"
+%               alarm.append_attach "Chord"
+%             end if BEFORE_MIN != 0
+%           end
+%         end
+%       end
+%     end
+%   end
+% end
+%   \end{minted}
+% \end{quotation}
+% 
+% 这实在是太麻烦了, 所以我只是选择了其中的最复杂(无聊)的部分. \footnote{并且我选择了一个非常烂的代码. 这是进入大学之后我写的一个根据课表自动生成iCalender可以使用的日历文件的程序, 当时的编程经验比较缺乏, 所以我写得非常的脏. 不过刚好, 可以作为一个复杂的直接的过程用简单的抽象来实现的东西的例子. }
+% 
+% 假如说我们每一次使用这样的代码, 也就是要把一个网页上的课表变成自己iCalender里面的日历文件需要如此这般的复杂过程, 我们估计就会对计算机这样的家伙心生畏惧并且产生一种极其悲观的无力感. 这也就是为什么我们在面对某些技术的时候, 我们会不再想要保持思考, 反而是低下头来臣服于此. 于是尴尬的一幕出现了, 表面上我们都知道, 人类发明了计算机, 计算机是人类智慧的结晶; 但是面对计算机, 我们却常常会说, 啊, 这个东西太复杂了, 所以我不能够理解. 
+% 
+% 但是对我来说, 我认为其实复杂并不是
 
+\section{理论法师也要会近战暴击}
 \begin{quotation}
-  下土之人, 天實有之. 五穀豐實, 寒暑合節, 天實生之. 苗房甲而水湮之, 苗秀好而旱莠之, 饑即必死, 天實殺之也. 天實有人, 生之孰敢言天之仁, 殺之孰敢言天之不仁. 刺史吏也, 三歲一交. 如彼管庫, 敢有其寶玉；如彼傳舍, 敢治其居室? 東海孝婦, 吏寃殺之, 天實寃之, 殺吏可也. 東海之人, 於婦何辜, 而三年旱之? 刺史性愚, 治或不至, 厲其身可也, 絕其命可也！吉福殃惡, 止當其身. 胡為降旱, 毒彼百姓? 謹書誠懇, 本之於天, 神能格天, 為我申聞. 
+  但甘道夫快步跃上台阶, 他盛怒而来, 犹如一道白光陡然照进黑暗之地, 那些人急忙遮着自己的眼睛往后退开. 他抬手就是一击, 德内梭尔的剑应声脱手而飞. 
 
-  \emph{杜牧《祭城隍神祈雨文》}\footnote{对不起杜牧先生, 我拿你的文字来作为例子了. 但是前面引入例子的文字实在是写得一般了. \\ 我在\href{https://m.djol.org/show-34-11627-1.html}{网络(不过建议还是不要访问, 因为看起来不正规)}上找到了一个比较像是的东西, 但是我觉得还是不如杜牧的好: \\
-  伏以. 玄穹高上玉皇大帝并雷公, 电母, 风伯, 雨师四大雨神. 兹为**流域祈求甘霖缓解旱情而文. 雨神居上阙而管下界之水, 黎民居下界而仰上京之神, 上神赐福于黎民, 则黎民敬仰上神, 上神无视于黎民, 则黎民不信上神. 上下相关, 神民相依也. 尝曰：民以食为天, 食以粮为主, 粮以水为本. 无粮则人不存, 无水则粮不生. 今春以来, 上苍惜雨, 下界无流, 大河缩萎, 小河干涸, 田地豁裂, 庄稼枯黄, 江汉流域, 尤为其甚. 早稻因无水而少插, 中稻因无水而损苗. 时下已是中稻移栽旺季, 斯地依然干旱少雨, 无水整田. 百姓惶惶, 仕宦忧忧. 今弟子施惠奏明太上, 获准向天庭求雨, 以解斯地旱情, 保中稻栽插, 解燃眉之急, 润十方之农田, 更润百姓之心田. 恳望玉帝并四大雨神, 三日之内, 为上述旱区普降甘霖. 则百姓感上神之大恩, 三界记上神之大功. **道人 顿首叩拜}
+  \emph{《魔戒III-王者归来》}\footnote{摘自\href{https://lotr.huijiwiki.com/wiki/FAQ/甘道夫为什么战斗时不用法术？}{甘道夫为什么战斗时不用法术}, 我对魔戒系列读的不多, 大概只看过第一部电影. 之后会尝试读完这个系列的. }
 \end{quotation}
 
-概括一些就是: 
+作为一名称职的法师, 除了法攻之外, 物理攻击也是不能缺少的. 而作为一名和计算机无关的外行人, 除了会一点点理论知识, 实操也是不能缺少的. 而所谓实操, 也并不一定是要写个一万行代码\footnote{虽然这样也确实很重要, 我的离散数学老师说, 搞计算机的不写个几十万代码都不好意思说自己是搞计算机的. 但是好像也不是那么重要, 我们的物理班主任说, 学好了统计力学, 对深度学习那套理论就比只会调包的写代码的强了. \\说到底, 这个就是一个实践和理论的矛盾的区别了. 不过这个有什么好争论的呢? 小孩子才做选择, 成年人应该两个都要. }之类的. 
 
+在后面的部分, 我要来介绍一点点我用过的在编写代码的过程的时候遵守的一些规范和用过的一些工具. 虽然只有一点点, 因为其实我编写的代码数量真的不太够. 
+
+\subsection{六芒星的内角是60$^\circ$, 不是36$^\circ$}
 \begin{quotation}
-  乞雨女郎魂, 炰羞洁且繁. 庙开鼯鼠叫, 神降越巫言. 
+  神也是人啊! 
 
-  旱气期销荡, 阴官想骏奔. 行看五马入, 萧飒已随轩. 
-
-  \emph{韩愈《郴州祈雨》}
+  \emph{马猴烧酒《标题还没想好·阿姆斯特朗回旋加速喷气式阿姆斯特朗炮使用手册》}
 \end{quotation}
 
-\begin{quotation}
-  汤既克夏, 大旱七年, 洛川竭. 汤乃以身祷于桑林, 剪其发, 自以为栖牲. 祈福于上帝. 于是大雨总至, 洽于四海. 
-
-  \emph{《搜神记·变化篇》}
-\end{quotation}
-
-你看, 我们可以用一些非常简明的文字来表述那些复杂的事情. 仅仅通过概念来感受这样的祈雨的氛围. 甚至这种仅仅通过概念来传递表示的能力能够超越时空, 哪怕是自己可能从来没有类似的体验的东西, 也能够通过概念的方式来理解和传递. 这里就是一种抽象的概念. \footnote{什么是抽象呢? 举个例子, 假如你的同桌搞了一支很有意思的自动铅笔, 然后借给你看看, 你抚摸着笔的外壳, 比较光滑; 笔握部分的橡胶也比较舒服; 出芯和书写也非常的快乐. 这个时候, 你是通过感官的表象来感受认识"笔"的. 但是有些时候, 你却并不能够直接通过直观或者感官来直接感受, 就像我现在是通过文字来间接的触动你的神经来产生对那支笔的认识. 这个时候就出现了一种抽象的感觉 -- 即我们不再是通过表象, 而是抽象的概念来认识一个东西了. 甚至, 哪怕这只笔已经不复存在了, 甚至只是我臆造的一个概念, 你也能够产生相应的认识. }
-
-对于计算机来说, 抽象也是一种非常重要的一种东西. 我们之前其实就已经见识了抽象的一种了: 变量. 我们通过变量这一种抽象的概念, 用变量的名字来抽象地访问一个值. 这个时候, 我们不再是具体地处理数值, 而是通过名字来形式地调用. 
-
-这一次, 我们将会不仅仅停留在对数值的抽象, 而是进一步深入, 来看一看更加有趣的对过程的抽象吧. 
-
-比方说我们现在有一个非常复杂的过程: (注: 我的目的不是为了分析这个又臭又长的烂程序, 所以不要计较里面的具体做法和实现. )
-
-\begin{quotation}
-  \begin{minted}{ruby}
-# 一周有七天
-7.times do |day|
-  # 每天十一节课
-  11.times do |index|
-    # 在网页中找到那一节课的信息
-    box = file.xpath("//tbody/tr[#{index + 1}]/td[#{day + 1}]/div/a")
-    # 假如这节课不是空的
-    unless box == []
-      # 有时候同一节课的时间会有不同的课
-      box.each do |item|
-        # 得到课程的链接
-        link = item.xpath("@href").text
-        # 得到课程的信息
-        course_data = get_info(link, day)
-        # 对于相应的课程
-        course_data[:opening_week].each do |week|
-          # 计算日期, 还有其他一堆东西
-          date = start_date + 7 * (week.to_i - 1) + day
-          the_year = date.year
-          the_month = date.month
-          the_day = date.day
-          sthour = TIME_MAP[index][0][0]
-          stmin = TIME_MAP[index][0][1]
-          edhour = TIME_MAP[index][1][0]
-          edmin = TIME_MAP[index][1][1]
-          # 往日历中加入课程的信息
-          cal.event do |event|
-            event.dtstart = DateTime.civil(the_year, the_month, the_day, sthour, stmin)
-            event.dtend = DateTime.civil(the_year, the_month, the_day, edhour, edmin)
-            event.summary = course_data[:summary] + "-" + course_data[:location]
-            event.alarm do |alarm|
-              # alarm.summary = "Go To Class!"
-              # 提前提醒
-              alarm.action        = "AUDIO"
-              alarm.trigger       = "-PT#{BEFORE_MIN}M"
-              alarm.append_attach "Chord"
-            end if BEFORE_MIN != 0
-          end
-        end
-      end
-    end
-  end
-end
-  \end{minted}
-\end{quotation}
-
-这实在是太麻烦了, 所以我只是选择了其中的最复杂(无聊)的部分. \footnote{并且我选择了一个非常烂的代码. 这是进入大学之后我写的一个根据课表自动生成iCalender可以使用的日历文件的程序, 当时的编程经验比较缺乏, 所以我写得非常的脏. 不过刚好, 可以作为一个复杂的直接的过程用简单的抽象来实现的东西的例子. }
-
-假如说我们每一次使用这样的代码, 也就是要把一个网页上的课表变成自己iCalender里面的日历文件需要如此这般的复杂过程, 我们估计就会对计算机这样的家伙心生畏惧并且产生一种极其悲观的无力感. 这也就是为什么我们在面对某些技术的时候, 我们会不再想要保持思考, 反而是低下头来臣服于此. 于是尴尬的一幕出现了, 表面上我们都知道, 人类发明了计算机, 计算机是人类智慧的结晶; 但是面对计算机, 我们却常常会说, 啊, 这个东西太复杂了, 所以我不能够理解. 
-
-但是对我来说, 我认为其实复杂并不是
